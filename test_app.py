@@ -34,3 +34,23 @@ class ProjetoTest(unittest.TestCase):
         item = dict(modo="carro", minutos=10, custo=5)
         with self.assertRaises(ValueError):
             run(dict(origem="A", destino="B", modos=[item, item]))
+
+    def test_resumo_distingue_menor_tempo_e_menor_custo(self):
+        data = json.loads((ROOT / "exemplo.json").read_text(encoding="utf-8"))
+        result = run(data)
+        self.assertEqual(result["mais_rapida"], "carro")
+        self.assertEqual(result["mais_barata"], "bicicleta")
+        self.assertEqual(result["alternativas_equilibradas"], ["carro", "bicicleta"])
+
+    def test_desempate_por_custo_ou_tempo(self):
+        result = run(dict(origem="A", destino="B", modos=[
+            dict(modo="carro", minutos=20, custo=8),
+            dict(modo="onibus", minutos=20, custo=5),
+            dict(modo="bicicleta", minutos=30, custo=5),
+        ]))
+        self.assertEqual(result["mais_rapida"], "onibus")
+        self.assertEqual(result["mais_barata"], "onibus")
+
+    def test_rejeita_lista_sem_opcoes(self):
+        with self.assertRaisesRegex(ValueError, "ao menos um modo"):
+            run(dict(origem="A", destino="B", modos=[]))

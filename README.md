@@ -13,7 +13,7 @@ python -m unittest -v
 
 ## Uso
 
-Passe custo em reais e duração em minutos para cada opção. O programa destaca as alternativas em que nenhuma outra é pelo menos tão boa nos dois critérios e melhor em um deles.
+Passe custo em reais e duração em minutos para cada opção. O programa destaca as alternativas em que nenhuma outra é pelo menos tão boa nos dois critérios e melhor em um deles. O relatório também indica `mais_rapida` (desempate pelo menor custo) e `mais_barata` (desempate pelo menor tempo). É necessário informar ao menos um modo. Os valores são estimativas fornecidas por você, não preços ou tempos consultados em tempo real.
 
 ## Google Maps
 
