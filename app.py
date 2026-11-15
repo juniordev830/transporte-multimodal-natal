@@ -2,6 +2,7 @@
 
 
 from math import isfinite
+from unicodedata import combining, normalize
 
 
 def texto(value):
@@ -22,6 +23,12 @@ from urllib.parse import urlencode
 MODOS = {"carro": "driving", "a-pe": "walking", "bicicleta": "bicycling", "onibus": "transit"}
 
 
+def modo_chave(modo):
+    texto_normalizado = normalize("NFD", texto(modo).casefold())
+    sem_acentos = "".join(letra for letra in texto_normalizado if not combining(letra))
+    return "-".join(sem_acentos.split())
+
+
 def _url(acao, parametros):
     url = "https://www.google.com/maps/" + acao + "?" + urlencode({"api": 1, **parametros})
     if len(url) > 2048:
@@ -33,9 +40,10 @@ def rota(origem, destino, modo="carro", paradas=(), evitar_pedagios=False):
     pontos = [texto(parada) for parada in paradas]
     if len(pontos) > 3 or any("|" in parada for parada in pontos):
         raise ValueError("Use até 3 paradas por link e evite o caractere |.")
-    if modo not in MODOS:
+    chave = modo_chave(modo)
+    if chave not in MODOS:
         raise ValueError(f"Modo desconhecido: {modo}")
-    params = {"origin": texto(origem), "destination": texto(destino), "travelmode": MODOS[modo]}
+    params = {"origin": texto(origem), "destination": texto(destino), "travelmode": MODOS[chave]}
     if pontos:
         params["waypoints"] = "|".join(pontos)
     if evitar_pedagios:
@@ -48,7 +56,7 @@ def run(data):
     opcoes = []
     vistos = set()
     for item in data["modos"]:
-        modo = texto(item["modo"])
+        modo = modo_chave(item["modo"])
         if modo in vistos:
             raise ValueError("Cada modo deve aparecer uma vez.")
         vistos.add(modo)

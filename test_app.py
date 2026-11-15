@@ -30,6 +30,23 @@ class ProjetoTest(unittest.TestCase):
         result = run(dict(origem="A", destino="B", modos=[dict(modo="carro", minutos=10, custo=10), dict(modo="onibus", minutos=20, custo=10), dict(modo="bicicleta", minutos=30, custo=0)]))
         self.assertEqual(result["alternativas_equilibradas"], ["carro", "bicicleta"])
 
+    def test_aceita_modos_como_escritos_em_portugues(self):
+        result = run({
+            "origem": "Natal", "destino": "Parnamirim",
+            "modos": [
+                {"modo": " Ônibus ", "minutos": 20, "custo": 5},
+                {"modo": "A pé", "minutos": 40, "custo": 0},
+            ],
+        })
+        self.assertEqual([item["modo"] for item in result["opcoes"]], ["onibus", "a-pe"])
+        self.assertIn("travelmode=transit", result["opcoes"][0]["google_maps"])
+        self.assertIn("travelmode=walking", result["opcoes"][1]["google_maps"])
+
+    def test_aliases_do_mesmo_modo_nao_duplicam_opcoes(self):
+        item = {"modo": "onibus", "minutos": 20, "custo": 5}
+        with self.assertRaisesRegex(ValueError, "uma vez"):
+            run({"origem": "A", "destino": "B", "modos": [item, dict(item, modo="Ônibus")]})
+
     def test_rejeita_modo_repetido(self):
         item = dict(modo="carro", minutos=10, custo=5)
         with self.assertRaises(ValueError):
