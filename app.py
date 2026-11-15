@@ -54,7 +54,9 @@ def run(data):
         vistos.add(modo)
         opcoes.append({"modo": modo, "minutos": numero(item["minutos"], 0.01),
                        "custo": numero(item["custo"]), "google_maps": rota(origem, destino, modo)})
-    opcoes.sort(key=lambda item: (item["minutos"], item["custo"]))
+    if not opcoes:
+        raise ValueError("Informe ao menos um modo de transporte.")
+    opcoes.sort(key=lambda item: (item["minutos"], item["custo"], item["modo"]))
     melhores = []
     for item in opcoes:
         tempo, custo = item["minutos"], item["custo"]
@@ -62,7 +64,9 @@ def run(data):
                        and (x["minutos"], x["custo"]) != (tempo, custo) for x in opcoes)
         if not dominada:
             melhores.append(item["modo"])
-    return {"opcoes": opcoes, "alternativas_equilibradas": melhores}
+    mais_barata = min(opcoes, key=lambda item: (item["custo"], item["minutos"], item["modo"]))
+    return {"opcoes": opcoes, "alternativas_equilibradas": melhores,
+            "mais_rapida": opcoes[0]["modo"], "mais_barata": mais_barata["modo"]}
 
 
 import argparse
