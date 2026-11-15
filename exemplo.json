@@ -1,0 +1,26 @@
+{
+  "origem": "Rodoviária de Natal, RN",
+  "destino": "Campus Central da UFRN, Natal, RN",
+  "modos": [
+    {
+      "modo": "carro",
+      "minutos": 18,
+      "custo": 19
+    },
+    {
+      "modo": "onibus",
+      "minutos": 42,
+      "custo": 5
+    },
+    {
+      "modo": "bicicleta",
+      "minutos": 28,
+      "custo": 0
+    },
+    {
+      "modo": "a-pe",
+      "minutos": 68,
+      "custo": 0
+    }
+  ]
+}
