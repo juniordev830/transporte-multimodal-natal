@@ -88,7 +88,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        with args.entrada.open(encoding="utf-8") as source:
+        with args.entrada.open(encoding="utf-8-sig") as source:
             data = json.load(source)
         if not isinstance(data, dict):
             raise ValueError("A entrada deve ser um objeto JSON.")
