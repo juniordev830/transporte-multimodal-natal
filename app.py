@@ -78,6 +78,8 @@ def run(data):
 
 
 import argparse
+import sys
+from relatorio_csv import escrever_csv
 import json
 from pathlib import Path
 
@@ -98,6 +100,7 @@ def rejeitar_constante_json(constante):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("entrada", type=Path, help="Arquivo JSON com os dados")
+    parser.add_argument("--csv", action="store_true", help="Exportar o tempo e o custo de cada modo de transporte em CSV")
     args = parser.parse_args()
 
     try:
@@ -113,7 +116,11 @@ def main():
     except (KeyError, TypeError, ValueError, OSError) as exc:
         parser.exit(2, f"Erro nos dados ou na execução: {exc}\n")
 
-    print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+    if args.csv:
+        sys.stdout.reconfigure(encoding="utf-8", newline="\n")
+        escrever_csv(result, sys.stdout)
+    else:
+        print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
 
 
 if __name__ == "__main__":
