@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 
 from app import run
@@ -71,3 +72,29 @@ class ProjetoTest(unittest.TestCase):
     def test_rejeita_lista_sem_opcoes(self):
         with self.assertRaisesRegex(ValueError, "ao menos um modo"):
             run(dict(origem="A", destino="B", modos=[]))
+
+    def test_cli_aceita_json_com_bom(self):
+        exemplo = (ROOT / "exemplo.json").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as diretorio:
+            arquivo = Path(diretorio) / "exemplo-bom.json"
+            arquivo.write_text(exemplo, encoding="utf-8-sig")
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "app.py"), str(arquivo)],
+                capture_output=True, text=True, encoding="utf-8", check=True,
+            )
+        self.assertEqual(json.loads(result.stdout), run(json.loads(exemplo)))
+
+    def test_cli_rejeita_chave_json_repetida(self):
+        exemplo = (ROOT / "exemplo.json").read_text(encoding="utf-8").lstrip()
+        chave = next(iter(json.loads(exemplo)))
+        conteudo = "{" + json.dumps(chave) + ": null," + exemplo[1:]
+        with tempfile.TemporaryDirectory() as diretorio:
+            arquivo = Path(diretorio) / "exemplo-repetido.json"
+            arquivo.write_text(conteudo, encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "app.py"), str(arquivo)],
+                capture_output=True, text=True, encoding="utf-8",
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("Campo JSON repetido", result.stderr)
