@@ -82,14 +82,23 @@ import json
 from pathlib import Path
 
 
+def objeto_sem_campos_repetidos(pares):
+    objeto = {}
+    for chave, valor in pares:
+        if chave in objeto:
+            raise ValueError(f"Campo JSON repetido: {chave!r}.")
+        objeto[chave] = valor
+    return objeto
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("entrada", type=Path, help="Arquivo JSON com os dados")
     args = parser.parse_args()
 
     try:
-        with args.entrada.open(encoding="utf-8") as source:
-            data = json.load(source)
+        with args.entrada.open(encoding="utf-8-sig") as source:
+            data = json.load(source, object_pairs_hook=objeto_sem_campos_repetidos)
         if not isinstance(data, dict):
             raise ValueError("A entrada deve ser um objeto JSON.")
         result = run(data)
