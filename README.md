@@ -22,3 +22,7 @@ Os links seguem a documentação de [Maps URLs](https://developers.google.com/ma
 ## Estado do projeto
 
 Versão inicial funcional por linha de comando, sem interface web. Usa apenas a biblioteca padrão do Python. Os testes executam os exemplos e verificam as regras do projeto.
+
+## Exportação para planilha
+
+Use `python app.py exemplo.json --csv > relatorio.csv` para exportar o tempo e o custo de cada modo de transporte. O CSV usa ponto e vírgula, conserva a ordem do relatório e inclui o cabeçalho mesmo quando a seleção está vazia. O JSON continua sendo a saída padrão.
