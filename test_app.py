@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 import json
 from pathlib import Path
 import subprocess
@@ -98,3 +99,24 @@ class ProjetoTest(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertEqual(result.stdout, "")
         self.assertIn("Campo JSON repetido", result.stderr)
+
+
+class JsonEstritoCliTest(unittest.TestCase):
+    def test_cli_rejeita_constantes_numericas_nao_padronizadas(self):
+        exemplo = json.loads((ROOT / "exemplo.json").read_text(encoding="utf-8"))
+        with TemporaryDirectory() as pasta:
+            entrada = Path(pasta) / "entrada.json"
+            for constante in ("NaN", "Infinity", "-Infinity"):
+                with self.subTest(constante=constante):
+                    exemplo["metadados"] = {"observacao": "CONSTANTE_TESTE"}
+                    entrada.write_text(
+                        json.dumps(exemplo).replace('"CONSTANTE_TESTE"', constante),
+                        encoding="utf-8",
+                    )
+                    resultado = subprocess.run(
+                        [sys.executable, str(ROOT / "app.py"), str(entrada)],
+                        capture_output=True, text=True, encoding="utf-8",
+                    )
+                    self.assertEqual(resultado.returncode, 2)
+                    self.assertIn(constante, resultado.stderr)
+                    self.assertEqual(resultado.stdout, "")
