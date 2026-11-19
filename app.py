@@ -78,6 +78,7 @@ def run(data):
 
 
 import argparse
+from contextlib import nullcontext
 import sys
 from relatorio_csv import escrever_csv
 import json
@@ -99,12 +100,13 @@ def rejeitar_constante_json(constante):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("entrada", type=Path, help="Arquivo JSON com os dados")
+    parser.add_argument("entrada", help="Arquivo JSON com os dados ou - para a entrada padrão")
     parser.add_argument("--csv", action="store_true", help="Exportar o tempo e o custo de cada modo de transporte em CSV")
     args = parser.parse_args()
 
     try:
-        with args.entrada.open(encoding="utf-8-sig") as source:
+        entrada = nullcontext(sys.stdin.buffer) if args.entrada == "-" else Path(args.entrada).open(encoding="utf-8-sig")
+        with entrada as source:
             data = json.load(
                 source,
                 object_pairs_hook=objeto_sem_campos_repetidos,
@@ -113,11 +115,13 @@ def main():
         if not isinstance(data, dict):
             raise ValueError("A entrada deve ser um objeto JSON.")
         result = run(data)
+    except RecursionError:
+        parser.exit(2, "O JSON tem níveis de aninhamento demais.\n")
     except (KeyError, TypeError, ValueError, OSError) as exc:
         parser.exit(2, f"Erro nos dados ou na execução: {exc}\n")
 
+    sys.stdout.reconfigure(encoding="utf-8", newline="\n")
     if args.csv:
-        sys.stdout.reconfigure(encoding="utf-8", newline="\n")
         escrever_csv(result, sys.stdout)
     else:
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
