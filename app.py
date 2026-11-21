@@ -58,7 +58,7 @@ def run(data):
     if not isinstance(modos, list) or not 1 <= len(modos) <= len(MODOS) or any(
         not isinstance(item, dict) for item in modos
     ):
-        raise ValueError("Informe de 1 a 4 modos como objetos.")
+        raise ValueError("Informe ao menos um modo (1 a 4 modos como objetos).")
     origem, destino = texto(data["origem"]), texto(data["destino"])
     opcoes = []
     vistos = set()
