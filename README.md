@@ -32,3 +32,4 @@ Também é possível encadear a ferramenta com outro comando usando `-` como ent
 ```bash
 cat exemplo.json | python app.py -
 ```
+\nA comparação recebe um objeto JSON com `origem`, `destino` e uma lista `modos` contendo de 1 a 4 objetos. Os modos reconhecidos são carro, ônibus, bicicleta e caminhada (`a-pe`); entradas inválidas são rejeitadas sem tentar calcular alternativas.\n
