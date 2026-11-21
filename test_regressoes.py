@@ -11,4 +11,22 @@ class MultimodalTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             run({"origem":"Natal","destino":"Parnamirim","modos":[{"modo":"carro","minutos":10,"custo":2},{"modo":"carro","minutos":20,"custo":3}]})
 
+    def test_reject_bad_input_shape(self):
+        for value in (None, [], "not-json-object", 42):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "objeto JSON"):
+                run(value)
+
+    def test_reject_non_list_and_non_object_modes(self):
+        base = {"origem": "Natal", "destino": "Parnamirim"}
+        for items in (None, "carro", [], [None], ["carro"], [{}] * 5):
+            with self.subTest(items=items), self.assertRaisesRegex(ValueError, "1 a 4 modos"):
+                run({**base, "modos": items})
+
+    def test_reject_unknown_mode_without_silent_substitution(self):
+        data = {"origem": "Natal", "destino": "Parnamirim",
+                "modos": [{"modo": "aviao", "minutos": 15, "custo": 20}]}
+        with self.assertRaisesRegex(ValueError, "Modo desconhecido"):
+            run(data)
+
+
 if __name__=="__main__": unittest.main()
