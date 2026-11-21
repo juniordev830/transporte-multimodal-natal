@@ -52,10 +52,17 @@ def rota(origem, destino, modo="carro", paradas=(), evitar_pedagios=False):
 
 
 def run(data):
+    if not isinstance(data, dict):
+        raise ValueError("A entrada deve ser um objeto JSON.")
+    modos = data.get("modos")
+    if not isinstance(modos, list) or not 1 <= len(modos) <= len(MODOS) or any(
+        not isinstance(item, dict) for item in modos
+    ):
+        raise ValueError("Informe de 1 a 4 modos como objetos.")
     origem, destino = texto(data["origem"]), texto(data["destino"])
     opcoes = []
     vistos = set()
-    for item in data["modos"]:
+    for item in modos:
         modo = modo_chave(item["modo"])
         if modo in vistos:
             raise ValueError("Cada modo deve aparecer uma vez.")
