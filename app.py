@@ -37,7 +37,13 @@ def _url(acao, parametros):
 
 
 def rota(origem, destino, modo="carro", paradas=(), evitar_pedagios=False):
-    pontos = [texto(parada) for parada in paradas]
+    if isinstance(paradas, (str, bytes)) or paradas is None:
+        raise ValueError("As paradas devem ser uma sequência de endereços.")
+    try:
+        from itertools import islice
+        pontos = [texto(parada) for parada in islice(paradas, 4)]
+    except TypeError as exc:
+        raise ValueError("As paradas devem ser uma sequência de endereços.") from exc
     if len(pontos) > 3 or any("|" in parada for parada in pontos):
         raise ValueError("Use até 3 paradas por link e evite o caractere |.")
     chave = modo_chave(modo)
