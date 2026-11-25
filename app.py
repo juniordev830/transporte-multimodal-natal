@@ -86,8 +86,16 @@ def run(data):
         if not dominada:
             melhores.append(item["modo"])
     mais_barata = min(opcoes, key=lambda item: (item["custo"], item["minutos"], item["modo"]))
-    return {"opcoes": opcoes, "alternativas_equilibradas": melhores,
-            "mais_rapida": opcoes[0]["modo"], "mais_barata": mais_barata["modo"]}
+    resultado = {"opcoes": opcoes, "alternativas_equilibradas": melhores,
+                 "mais_rapida": opcoes[0]["modo"], "mais_barata": mais_barata["modo"]}
+    if "teto_reais" in data or "teto_minutos" in data:
+        custo_max = numero(data["teto_reais"]) if "teto_reais" in data else None
+        tempo_max = numero(data["teto_minutos"], 0.01) if "teto_minutos" in data else None
+        viaveis = [x for x in opcoes if (custo_max is None or x["custo"] <= custo_max)
+                   and (tempo_max is None or x["minutos"] <= tempo_max)]
+        resultado["dentro_do_limite"] = [x["modo"] for x in viaveis]
+        resultado["mais_rapida_dentro_do_limite"] = viaveis[0]["modo"] if viaveis else None
+    return resultado
 
 
 import argparse
