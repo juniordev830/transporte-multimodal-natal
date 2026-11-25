@@ -36,3 +36,8 @@ cat exemplo.json | python app.py -
 A comparação recebe um objeto JSON com `origem`, `destino` e uma lista `modos` contendo de 1 a 4 objetos. Os modos reconhecidos são carro, ônibus, bicicleta e caminhada (`a-pe`); entradas inválidas são rejeitadas sem tentar calcular alternativas.
 
 Arquivos e entrada padrão JSON são limitados a 1 MB (1.000.000 bytes). Entradas maiores são rejeitadas antes da comparação das alternativas.
+
+
+## Novo recurso
+
+`teto_reais` e `teto_minutos` são filtros opcionais para identificar os modos que cabem no orçamento e tempo do usuário. Não elimina a comparação original. Usa valores cadastrados, não tarifas atuais.
